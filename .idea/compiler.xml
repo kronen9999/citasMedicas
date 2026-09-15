@@ -18,9 +18,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="eurekaserver" />
+        <module name="citas" />
         <module name="gateway" />
-        <module name="servicio-a" />
-        <module name="servicio-b" />
       </profile>
       <profile name="Annotation profile for pacientes" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -33,9 +32,14 @@
         <module name="medicos" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="servicio-a" target="17" />
+      <module name="servicio-b" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="citas" options="-parameters" />
       <module name="commons" options="-parameters" />
       <module name="eurekaserver" options="-parameters" />
       <module name="gateway" options="-parameters" />

@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/eurekaserver/pom.xml" />
         <option value="$PROJECT_DIR$/pacientes/pom.xml" />
         <option value="$PROJECT_DIR$/msv.pacientes/pom.xml" />
+        <option value="$PROJECT_DIR$/citas/pom.xml" />
       </list>
     </option>
   </component>
