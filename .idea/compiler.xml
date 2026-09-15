@@ -19,20 +19,15 @@
         <outputRelativeToContentRoot value="true" />
         <module name="eurekaserver" />
         <module name="medicos" />
+        <module name="msv.pacientes" />
         <module name="gateway" />
         <module name="servicio-a" />
         <module name="servicio-b" />
       </profile>
-      <profile name="Annotation profile for pacientes" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
-        </processorPath>
-        <module name="pacientes" />
-      </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="pacientes" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -40,6 +35,7 @@
       <module name="eurekaserver" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="medicos" options="-parameters" />
+      <module name="msv.pacientes" options="-parameters" />
       <module name="pacientes" options="-parameters" />
       <module name="servicio-a" options="-parameters" />
       <module name="servicio-b" options="-parameters" />
