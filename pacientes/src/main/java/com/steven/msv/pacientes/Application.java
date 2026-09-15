@@ -3,7 +3,7 @@ package com.steven.msv.pacientes;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.steven.msv.pacientes", "com.steven.commons"})
 public class Application {
 
 	public static void main(String[] args) {

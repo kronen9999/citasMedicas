@@ -18,11 +18,19 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="eurekaserver" />
-        <module name="medicos" />
-        <module name="pacientes" />
         <module name="gateway" />
         <module name="servicio-a" />
         <module name="servicio-b" />
+      </profile>
+      <profile name="Annotation profile for pacientes" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+        </processorPath>
+        <module name="pacientes" />
+        <module name="medicos" />
       </profile>
     </annotationProcessing>
   </component>
