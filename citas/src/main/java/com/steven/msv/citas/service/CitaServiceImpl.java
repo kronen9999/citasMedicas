@@ -41,6 +41,10 @@ public class CitaServiceImpl implements CitaService{
 
         cita.actualizarEstadoCita(EstadoCita.obtenerEstadoCitaPorCodigo(idEstadoCita));
 
+        citaRepository.save(cita);
+
+        cambiarDisponibilidadMedicoSegunEstadoCita(cita.getIdMedico(),cita.getEstadoCita());
+
         log.info("Estado de la cita {} actualizado correctamente",idCita);
 
     }
@@ -76,11 +80,11 @@ public class CitaServiceImpl implements CitaService{
 
         citaRepository.save(cita);
 
-        medicoClient.actualizarDisponibilidadMedico(medico.id(),DisponibilidadMedico.NO_DISPONIBLE.getCodigo());
+       cambiarDisponibilidadMedicoSegunEstadoCita(request.idMedico(),cita.getEstadoCita());
 
         log.info("Cita registrada exitosamente");
 
-        return citaMapper.entidadAResponse(cita,null,null);
+        return citaMapper.entidadAResponse(cita,null,medico);
     }
 
     @Override
@@ -104,6 +108,9 @@ public class CitaServiceImpl implements CitaService{
         log.info("Eliminando cita con id {}",id);
 
         cita.eliminar();
+
+        if (cita.getEstadoCita()==EstadoCita.PENDIENTE)
+            actualizarDisponibilidadMedico(cita.getIdMedico(),DisponibilidadMedico.DISPONIBLE.getCodigo());
 
         log.info("Cita con id {} ja sido marcada como eliminada ");
 
@@ -164,6 +171,20 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Disponibilidad del medico actualizada en el servicio remoto");
     }
+
+    private void cambiarDisponibilidadMedicoSegunEstadoCita(Long idMedico,EstadoCita estadoCita)
+    {
+
+        switch (estadoCita)
+        {
+            case PENDIENTE,CONFIRMADA -> actualizarDisponibilidadMedico(idMedico,DisponibilidadMedico.NO_DISPONIBLE.getCodigo());
+            case EN_CURSO ->actualizarDisponibilidadMedico(idMedico,DisponibilidadMedico.EN_CONSULTA.getCodigo());
+            case FINALIZADA ->actualizarDisponibilidadMedico(idMedico,DisponibilidadMedico.DISPONIBLE.getCodigo());
+
+        }
+
+    }
+
 
 
 }
