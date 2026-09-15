@@ -1,5 +1,6 @@
 package com.steven.msv.citas.service;
 
+import com.steven.commons.clients.MedicoClient;
 import com.steven.commons.dto.medicos.MedicoResponse;
 import com.steven.commons.dto.pacientes.PacienteRespose;
 import com.steven.commons.enums.DisponibilidadMedico;
@@ -28,6 +29,8 @@ public class CitaServiceImpl implements CitaService{
     private final CitaRepository citaRepository;
 
     private final CitaMapper citaMapper;
+
+    private final MedicoClient medicoClient;
 
     @Override
     public void actualizarEstadoCita(Long idCita, Long idEstadoCita) {
@@ -73,6 +76,8 @@ public class CitaServiceImpl implements CitaService{
 
         citaRepository.save(cita);
 
+        medicoClient.actualizarDisponibilidadMedico(medico.id(),DisponibilidadMedico.NO_DISPONIBLE.getCodigo());
+
         log.info("Cita registrada exitosamente");
 
         return citaMapper.entidadAResponse(cita,null,null);
@@ -109,7 +114,7 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Buscando medico activo con id {} en el servicio remoto",id);
 
-        return null;
+        return medicoClient.obtenerMedicoActivoPorId(id);
 
     }
 
@@ -118,7 +123,7 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Buscando medico sin estado con id {} en el servicio remoto",id);
 
-        return null;
+        return medicoClient.obtenerMedicoSinEstadoPorId(id);
 
     }
 
@@ -151,6 +156,14 @@ public class CitaServiceImpl implements CitaService{
 
     }
 
+    private void actualizarDisponibilidadMedico(Long iMedico,Long idDisponibilidad)
+    {
+        log.info("Actualizando disponibilidad del medico en el servicio remoto...");
+
+        medicoClient.actualizarDisponibilidadMedico(iMedico, idDisponibilidad);
+
+        log.info("Disponibilidad del medico actualizada en el servicio remoto");
+    }
 
 
 }
