@@ -5,6 +5,7 @@ import com.steven.commons.dto.medicos.MedicoResponse;
 import com.steven.commons.dto.pacientes.PacienteRespose;
 import com.steven.commons.enums.DisponibilidadMedico;
 import com.steven.commons.enums.EstadoRegistro;
+import com.steven.commons.exceptions.EntidadRelacionadaException;
 import com.steven.commons.exceptions.RecursoNoEncontradoException;
 import com.steven.commons.clients.PacienteClient;
 import com.steven.msv.citas.dto.CitaRequest;
@@ -35,6 +36,7 @@ public class CitaServiceImpl implements CitaService{
     private final MedicoClient medicoClient;
 
     private final PacienteClient pacienteClient;
+
 
     @Override
     public void actualizarEstadoCita(Long idCita, Long idEstadoCita) {
@@ -202,6 +204,22 @@ public class CitaServiceImpl implements CitaService{
             throw  new IllegalStateException("EL paciente no se pude registrar por que cuenta con una cita es estado pendiente , confirmada o en curso");
 
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public void validarCitasBloqueantesPaciente(Long idPaciente)
+    {
+
+        log.info("Buscando en citas si un paciente tiene citas en estado confirmada o en curso");
+
+        if (citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaIn(
+                idPaciente,EstadoRegistro.ACTIVO,EnumSet.of(EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO)))
+          throw  new EntidadRelacionadaException("El paciente no puede actualizarse o eliminarse porque tiene citas confirmadas o en curso");
+
+
+
+    }
+
 
 
 

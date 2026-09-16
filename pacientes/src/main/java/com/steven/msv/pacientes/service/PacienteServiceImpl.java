@@ -1,6 +1,7 @@
 package com.steven.msv.pacientes.service;
 
 
+import com.steven.commons.clients.CitaClient;
 import com.steven.commons.dto.pacientes.PacienteRequest;
 import com.steven.commons.dto.pacientes.PacienteRespose;
 import com.steven.commons.enums.EstadoRegistro;
@@ -27,6 +28,8 @@ public class PacienteServiceImpl implements PacienteService {
     private final PacienteRepository pacienteRepository;
 
     private final PacienteMapper pacienteMapper;
+
+    private final CitaClient citaClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -76,6 +79,8 @@ public class PacienteServiceImpl implements PacienteService {
 
         Paciente paciente = buscarPacienteActivoID(id);
 
+        citaClient.validarExistenPacientesConfirmadasOCurso(id);
+
         validarDuplicadosEnActualizacion(request.email(),request.telefono(),id);
 
         Double imc = calcularIMC(request.peso(), request.estatura());
@@ -104,6 +109,8 @@ public class PacienteServiceImpl implements PacienteService {
         log.info("Iniciando eliminacion logica del paciente con id {}", id);
 
         Paciente paciente = buscarPacienteID(id);
+
+        citaClient.validarExistenPacientesConfirmadasOCurso(id);
 
         paciente.eliminarPaciente();
 
