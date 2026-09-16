@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.EnumSet;
 import java.util.List;
 
 
@@ -78,6 +79,8 @@ public class CitaServiceImpl implements CitaService{
         MedicoResponse medico = obtenerMedicoActivo(request.idMedico());
 
         PacienteRespose paciente =pacienteClient.obtenerPacienteActivo(request.idPaciente());
+
+        validarPacienteCitaActivaSimultanea(request.idPaciente());
 
         validarMedicoActivoDisponible(medico);
 
@@ -189,6 +192,17 @@ public class CitaServiceImpl implements CitaService{
         }
 
     }
+
+    private void validarPacienteCitaActivaSimultanea(Long idPaciente)
+    {
+
+        if (citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaIn(idPaciente
+                ,EstadoRegistro.ACTIVO,
+                EnumSet.of(EstadoCita.PENDIENTE,EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO)))
+            throw  new IllegalStateException("EL paciente no se pude registrar por que cuenta con una cita es estado pendiente , confirmada o en curso");
+
+    }
+
 
 
 
