@@ -187,7 +187,7 @@ public class CitaServiceImpl implements CitaService{
         {
             case PENDIENTE,CONFIRMADA -> actualizarDisponibilidadMedico(idMedico,DisponibilidadMedico.NO_DISPONIBLE.getCodigo());
             case EN_CURSO ->actualizarDisponibilidadMedico(idMedico,DisponibilidadMedico.EN_CONSULTA.getCodigo());
-            case FINALIZADA ->actualizarDisponibilidadMedico(idMedico,DisponibilidadMedico.DISPONIBLE.getCodigo());
+            case FINALIZADA,CANCELADA ->actualizarDisponibilidadMedico(idMedico,DisponibilidadMedico.DISPONIBLE.getCodigo());
 
         }
 

@@ -61,7 +61,7 @@ public class Cita {
     private  void validarNoEliminada()
     {
        if (this.estadoRegistro==EstadoRegistro.ELIMINADO)
-           throw  new IllegalArgumentException("La cita ya esta eliminada");
+           throw  new IllegalStateException("La cita ya esta eliminada");
 
     }
 
