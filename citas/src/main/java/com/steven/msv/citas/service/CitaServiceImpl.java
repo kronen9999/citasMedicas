@@ -68,7 +68,7 @@ public class CitaServiceImpl implements CitaService{
 
         Cita cita = obtenerCitaOException(id);
 
-        return citaMapper.entidadAResponse(cita,null,obtenerMedicoSinEstado(cita.getIdMedico())
+        return citaMapper.entidadAResponse(cita,obtenerPacienteSinEstado(cita.getIdPaciente()),obtenerMedicoSinEstado(cita.getIdMedico())
 );
     }
 
@@ -157,7 +157,7 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Buscando paciente sin estado con id {} en el servicio remoto",id);
 
-        return null;
+        return pacienteClient.obtenerPacienteSinValidarEstado(id);
 
     }
 

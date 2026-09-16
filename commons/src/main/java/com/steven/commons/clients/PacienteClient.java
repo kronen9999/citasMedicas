@@ -14,4 +14,9 @@ PacienteRespose obtenerPacienteActivo(
         @PathVariable Long idPaciente
     );
 
+    @GetMapping("id-paciente/{idPaciente}")
+    PacienteRespose obtenerPacienteSinValidarEstado(
+            @PathVariable Long idPaciente
+    );
+
 }
