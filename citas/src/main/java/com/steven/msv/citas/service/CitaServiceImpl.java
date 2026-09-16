@@ -6,6 +6,7 @@ import com.steven.commons.dto.pacientes.PacienteRespose;
 import com.steven.commons.enums.DisponibilidadMedico;
 import com.steven.commons.enums.EstadoRegistro;
 import com.steven.commons.exceptions.RecursoNoEncontradoException;
+import com.steven.commons.clients.PacienteClient;
 import com.steven.msv.citas.dto.CitaRequest;
 import com.steven.msv.citas.dto.CitaResponse;
 import com.steven.msv.citas.entity.Cita;
@@ -31,6 +32,8 @@ public class CitaServiceImpl implements CitaService{
     private final CitaMapper citaMapper;
 
     private final MedicoClient medicoClient;
+
+    private final PacienteClient pacienteClient;
 
     @Override
     public void actualizarEstadoCita(Long idCita, Long idEstadoCita) {
@@ -74,6 +77,8 @@ public class CitaServiceImpl implements CitaService{
 
         MedicoResponse medico = obtenerMedicoActivo(request.idMedico());
 
+        PacienteRespose paciente =pacienteClient.obtenerPacienteActivo(request.idPaciente());
+
         validarMedicoActivoDisponible(medico);
 
         Cita cita= citaMapper.requestAEntidad(request);
@@ -84,7 +89,7 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Cita registrada exitosamente");
 
-        return citaMapper.entidadAResponse(cita,null,medico);
+        return citaMapper.entidadAResponse(cita,paciente,medico);
     }
 
     @Override

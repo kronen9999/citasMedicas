@@ -20,6 +20,8 @@ spring:
               uri: lb://pacientes
               predicates:
                 - Path=/api/pacientes/**
+              filters:
+                - StripPrefix=2
 
             - id: citas
               uri: lb://citas
