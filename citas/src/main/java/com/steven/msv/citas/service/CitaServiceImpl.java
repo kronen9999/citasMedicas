@@ -8,6 +8,8 @@ import com.steven.commons.enums.EstadoRegistro;
 import com.steven.commons.exceptions.EntidadRelacionadaException;
 import com.steven.commons.exceptions.RecursoNoEncontradoException;
 import com.steven.commons.clients.PacienteClient;
+import com.steven.commons.utils.StringCustomUtils;
+import com.steven.commons.utils.ValoresNumericosUtils;
 import com.steven.msv.citas.dto.CitaRequest;
 import com.steven.msv.citas.dto.CitaResponse;
 import com.steven.msv.citas.entity.Cita;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -239,14 +242,12 @@ public class CitaServiceImpl implements CitaService{
 
         boolean cambioPaciente = !request.idPaciente().equals(idPacienteAnterior);
 
-        if (cambioMedico)
-            validarMedicoActivoDisponible(medico);
-
         if (cambioPaciente)
             validarPacienteSinOtrasCitasActivas(request.idPaciente(),cita.getId());
 
         if (cambioMedico)
         {
+            validarMedicoActivoDisponible(medico);
 
             actualizarDisponibilidadMedico(idMedicoAnterior,DisponibilidadMedico.DISPONIBLE.getCodigo());
 
@@ -285,6 +286,32 @@ public class CitaServiceImpl implements CitaService{
 
 
     }
+
+    private Double calcularIMC(Double peso,Double estatura)
+    {
+
+        log.info("Calculando imc...");
+
+        ValoresNumericosUtils.validarNumeroRequerido(peso);
+        ValoresNumericosUtils.validarNumeroRequerido(estatura);
+
+        if (peso < 0.1 || estatura < 1.0) throw new IllegalArgumentException("El peso no puede ser menor a 0.1 y la estatura no puede ser menor a 1.0");
+
+        return peso / Math.pow(estatura, 2);
+
+    }
+
+    private String calcularNumeroExpediente (String numTelefono)
+    {
+        log.info("Generando numero de expediente");
+
+        StringCustomUtils.validarTamanio(numTelefono,10,10,"El telefono debe contener exactamente 10 digitos");
+
+        return numTelefono.chars()
+                .mapToObj(digito -> (char) digito + "X")
+                .collect(Collectors.joining());
+    }
+
 
 
 
