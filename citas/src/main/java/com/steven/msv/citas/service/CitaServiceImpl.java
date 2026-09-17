@@ -271,11 +271,10 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Buscando en citas si un paciente tiene citas en estado confirmada o en curso");
 
-        if (citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaIn(
-                idPaciente,EstadoRegistro.ACTIVO,ESTADOS_CITA_BLOQUEANTE))
-          throw  new EntidadRelacionadaException("El paciente no puede actualizarse o eliminarse porque tiene citas confirmadas o en curso");
-
-
+        validarCitasBloqueantes(
+                citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaIn(
+                        idPaciente,EstadoRegistro.ACTIVO,ESTADOS_CITA_BLOQUEANTE),
+                "paciente");
 
     }
 
@@ -286,42 +285,18 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Buscando en citas si un medico tiene citas en estado confirmada o en curso");
 
-        if (citaRepository.existsByIdMedicoAndEstadoRegistroAndEstadoCitaIn(
-                idMedico,EstadoRegistro.ACTIVO,ESTADOS_CITA_BLOQUEANTE))
-            throw  new EntidadRelacionadaException("El medico no puede actualizarse o eliminarse porque tiene citas confirmadas o en curso");
-
-
+        validarCitasBloqueantes(
+                citaRepository.existsByIdMedicoAndEstadoRegistroAndEstadoCitaIn(
+                        idMedico,EstadoRegistro.ACTIVO,ESTADOS_CITA_BLOQUEANTE),
+                "medico");
 
     }
 
-    private Double calcularIMC(Double peso,Double estatura)
+    private void validarCitasBloqueantes(boolean existeCitaBloqueante,String sujeto)
     {
 
-        log.info("Calculando imc...");
-
-        ValoresNumericosUtils.validarNumeroRequerido(peso);
-        ValoresNumericosUtils.validarNumeroRequerido(estatura);
-
-        if (peso < 0.1 || estatura < 1.0) throw new IllegalArgumentException("El peso no puede ser menor a 0.1 y la estatura no puede ser menor a 1.0");
-
-        return peso / Math.pow(estatura, 2);
+        if (existeCitaBloqueante)
+            throw  new EntidadRelacionadaException("El "+sujeto+" no puede actualizarse o eliminarse porque tiene citas confirmadas o en curso");
 
     }
-
-    private String calcularNumeroExpediente (String numTelefono)
-    {
-        log.info("Generando numero de expediente");
-
-        StringCustomUtils.validarTamanio(numTelefono,10,10,"El telefono debe contener exactamente 10 digitos");
-
-        return numTelefono.chars()
-                .mapToObj(digito -> (char) digito + "X")
-                .collect(Collectors.joining());
-    }
-
-
-
-
-
-
 }
