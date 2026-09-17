@@ -35,8 +35,8 @@ public class MedicoController extends CrudController<MedicoRequest, MedicoRespon
     }
 
     @PutMapping("/{idMedico}/disponibilidad/{idDisponibilidad}")
-    @Operation(summary = "Actualizar disponibilidad del medico "+
-    " (No es endpoint libre,debe  gestionarlo el sistema de citas)")
+    @Operation(summary = "Cambio manual de disponibilidad del medico "+
+    " (No se puede cambiar a DISPONIBLE si el medico tiene citas confirmadas o en curso)")
     public ResponseEntity<Void> actualizarDisponibilidadMedico(
             @PathVariable @Positive(message = "El idMedico debe de ser positivo") Long idMedico,
             @PathVariable @Positive(message = "El idDisponibilidad debe de ser positivo") Long idDisponibilidad
@@ -44,6 +44,20 @@ public class MedicoController extends CrudController<MedicoRequest, MedicoRespon
     {
 
         service.actualizarDisponibilidadDelMedico(idMedico,idDisponibilidad);
+        return ResponseEntity.noContent().build();
+
+    }
+
+    @PutMapping("/{idMedico}/disponibilidad-interna/{idDisponibilidad}")
+    @Operation(summary = "Actualizacion de disponibilidad usada por el sistema de citas "+
+    " (Endpoint interno, no aplica la restriccion del cambio manual)")
+    public ResponseEntity<Void> actualizarDisponibilidadInterna(
+            @PathVariable @Positive(message = "El idMedico debe de ser positivo") Long idMedico,
+            @PathVariable @Positive(message = "El idDisponibilidad debe de ser positivo") Long idDisponibilidad
+    )
+    {
+
+        service.actualizarDisponibilidadInterna(idMedico,idDisponibilidad);
         return ResponseEntity.noContent().build();
 
     }

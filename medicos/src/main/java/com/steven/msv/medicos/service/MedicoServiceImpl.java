@@ -1,5 +1,6 @@
 package com.steven.msv.medicos.service;
 
+import com.steven.commons.clients.CitaClient;
 import com.steven.commons.dto.medicos.MedicoRequest;
 import com.steven.commons.dto.medicos.MedicoResponse;
 import com.steven.commons.enums.DisponibilidadMedico;
@@ -26,6 +27,9 @@ public class MedicoServiceImpl implements MedicoService {
 
     private final MedicoMapper medicoMapper;
 
+    private final CitaClient citaClient;
+
+
     @Transactional(readOnly = true)
     @Override
     public MedicoResponse obtenerMedicoPorIdSinEstado(Long id) {
@@ -41,11 +45,28 @@ public class MedicoServiceImpl implements MedicoService {
     @Override
     public void actualizarDisponibilidadDelMedico(Long idMedico, Long idDisponibilidad) {
 
+        DisponibilidadMedico nuevaDisponibilidad= DisponibilidadMedico.obtenerDisponibilidadPorCodigo(idDisponibilidad);
+
+        if (nuevaDisponibilidad==DisponibilidadMedico.DISPONIBLE)
+            citaClient.validarExistenMedicosConfirmadasOCurso(idMedico);
+
+        aplicarDisponibilidad(idMedico,nuevaDisponibilidad);
+
+    }
+
+    @Override
+    public void actualizarDisponibilidadInterna(Long idMedico, Long idDisponibilidad) {
+
+        aplicarDisponibilidad(idMedico,DisponibilidadMedico.obtenerDisponibilidadPorCodigo(idDisponibilidad));
+
+    }
+
+    private void aplicarDisponibilidad(Long idMedico,DisponibilidadMedico nuevaDisponibilidad)
+    {
+
         Medico medico = obtenerMedicoActivoPorId(idMedico);
 
         log.info("Actualizando disponibilidad del medico con id : {} ",idMedico);
-
-        DisponibilidadMedico nuevaDisponibilidad= DisponibilidadMedico.obtenerDisponibilidadPorCodigo(idDisponibilidad);
 
         DisponibilidadMedico disponibilidadAnterior = medico.getDisponibilidad();
 
@@ -146,6 +167,8 @@ public class MedicoServiceImpl implements MedicoService {
 
         log.info("Actualizando medico con id {}",id);
 
+        citaClient.validarExistenMedicosConfirmadasOCurso(id);
+
         validarCambiosUnicos(request,id);
 
         medico.actualizar(
@@ -167,9 +190,11 @@ public class MedicoServiceImpl implements MedicoService {
     @Override
     public void eliminar(Long id) {
 
+        log.info("Eliminando medico con id {} ",id);
+
         Medico medico= obtenerMedicoActivoPorId(id);
 
-        log.info("Eliminando medico con id {} ",id);
+        citaClient.validarExistenMedicosConfirmadasOCurso(id);
 
         medico.eliminar();
 
