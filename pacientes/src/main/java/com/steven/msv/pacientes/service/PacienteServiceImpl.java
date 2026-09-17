@@ -6,7 +6,6 @@ import com.steven.commons.dto.pacientes.PacienteRequest;
 import com.steven.commons.dto.pacientes.PacienteRespose;
 import com.steven.commons.enums.EstadoRegistro;
 import com.steven.commons.exceptions.RecursoNoEncontradoException;
-import com.steven.commons.utils.StringCustomUtils;
 import com.steven.commons.utils.ValoresNumericosUtils;
 import com.steven.msv.pacientes.entity.Paciente;
 import com.steven.msv.pacientes.mapper.PacienteMapper;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -65,10 +63,7 @@ public class PacienteServiceImpl implements PacienteService {
 
         validarDuplicados(request.email(),request.telefono());
 
-        Double imc = calcularIMC(request.peso(), request.estatura());
-        String numExpediente = calcularNumeroExpediente(request.telefono());
-
-        Paciente paciente = pacienteMapper.requestAEntidad(request, imc, numExpediente);
+        Paciente paciente = pacienteMapper.requestAEntidad(request);
 
         return pacienteMapper.entidadAResponse(pacienteRepository.save(paciente));
     }
@@ -83,9 +78,6 @@ public class PacienteServiceImpl implements PacienteService {
 
         validarDuplicadosEnActualizacion(request.email(),request.telefono(),id);
 
-        Double imc = calcularIMC(request.peso(), request.estatura());
-        String numExpediente = calcularNumeroExpediente(request.telefono());
-
         paciente.actualizarDatos(
                 request.nombre(),
                 request.apellidoPaterno(),
@@ -95,9 +87,7 @@ public class PacienteServiceImpl implements PacienteService {
                 request.direccion(),
                 request.edad(),
                 request.peso(),
-                request.estatura(),
-                imc,
-                numExpediente
+                request.estatura()
         );
 
         return pacienteMapper.entidadAResponse(paciente);
@@ -142,31 +132,6 @@ public class PacienteServiceImpl implements PacienteService {
         {
             throw new IllegalStateException("Ya existe otro paciente activo con el telefono "+telefono);
         }
-    }
-
-    private Double calcularIMC(Double peso,Double estatura)
-    {
-
-        log.info("Calculando imc...");
-
-        ValoresNumericosUtils.validarNumeroRequerido(peso);
-        ValoresNumericosUtils.validarNumeroRequerido(estatura);
-
-        if (peso < 0.1 || estatura < 1.0) throw new IllegalArgumentException("El peso no puede ser menor a 0.1 y la estatura no puede ser menor a 1.0");
-
-        return peso / Math.pow(estatura, 2);
-
-    }
-
-    private String calcularNumeroExpediente (String numTelefono)
-    {
-        log.info("Generando numero de expediente");
-
-        StringCustomUtils.validarTamanio(numTelefono,10,10,"El telefono debe contener exactamente 10 digitos");
-
-        return numTelefono.chars()
-                .mapToObj(digito -> (char) digito + "X")
-                .collect(Collectors.joining());
     }
 
     private Paciente buscarPacienteID(Long id)

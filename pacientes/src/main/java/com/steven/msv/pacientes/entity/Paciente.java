@@ -5,19 +5,24 @@ import com.steven.commons.enums.EstadoRegistro;
 import com.steven.commons.utils.StringCustomUtils;
 import com.steven.commons.utils.ValoresNumericosUtils;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.stream.Collectors;
+
 @Entity
 @Table(name = "PACIENTES")
-@AllArgsConstructor
-@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
+@Slf4j
 public class Paciente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,10 +79,33 @@ public class Paciente {
         this.estadoRegistro = EstadoRegistro.ELIMINADO;
     }
 
+    public static Paciente crear(String nombre, String apellidoPaterno, String apellidoMaterno,
+                                 String email, String telefono, String direccion,
+                                 Short edad, Double peso, Double estatura)
+    {
+
+        validarDatos(nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, edad, peso, estatura);
+
+        return Paciente.builder()
+                .nombre(nombre)
+                .apellidoPaterno(apellidoPaterno)
+                .apellidoMaterno(apellidoMaterno)
+                .edad(edad)
+                .peso(peso)
+                .estatura(estatura)
+                .imc(calcularIMC(peso,estatura))
+                .email(email)
+                .numExpediente(calcularNumeroExpediente(telefono))
+                .telefono(telefono)
+                .direccion(direccion)
+                .estadoRegistro(EstadoRegistro.ACTIVO)
+                .build();
+
+    }
+
     public void actualizarDatos(String nombre, String apellidoPaterno, String apellidoMaterno,
                                 String email, String telefono, String direccion,
-                                Short edad, Double peso, Double estatura,
-                                Double imc, String numExpediente)
+                                Short edad, Double peso, Double estatura)
     {
         validarDatos(nombre, apellidoPaterno, apellidoMaterno, email, telefono, direccion, edad, peso, estatura);
 
@@ -87,14 +115,14 @@ public class Paciente {
         this.edad = edad;
         this.peso = peso;
         this.estatura = estatura;
-        this.imc = imc;
+        this.imc = calcularIMC(peso,estatura);
         this.email = email;
-        this.numExpediente = numExpediente;
+        this.numExpediente = calcularNumeroExpediente(telefono);
         this.telefono = telefono;
         this.direccion = direccion;
     }
 
-    private void validarDatos(String nombre, String apellidoPaterno, String apellidoMaterno,
+    private static void validarDatos(String nombre, String apellidoPaterno, String apellidoMaterno,
                               String email, String telefono, String direccion,
                               Short edad, Double peso, Double estatura)
     {
@@ -111,6 +139,30 @@ public class Paciente {
     }
 
 
+    private static Double calcularIMC(Double peso,Double estatura)
+    {
+
+        log.info("Calculando imc...");
+
+        ValoresNumericosUtils.validarNumeroRequerido(peso);
+        ValoresNumericosUtils.validarNumeroRequerido(estatura);
+
+        if (peso < 0.1 || estatura < 1.0) throw new IllegalArgumentException("El peso no puede ser menor a 0.1 y la estatura no puede ser menor a 1.0");
+
+        return peso / Math.pow(estatura, 2);
+
+    }
+
+    private static String calcularNumeroExpediente (String numTelefono)
+    {
+        log.info("Generando numero de expediente");
+
+        StringCustomUtils.validarTamanio(numTelefono,10,10,"El telefono debe contener exactamente 10 digitos");
+
+        return numTelefono.chars()
+                .mapToObj(digito -> (char) digito + "X")
+                .collect(Collectors.joining());
+    }
 
 
 

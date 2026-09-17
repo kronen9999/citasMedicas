@@ -8,6 +8,8 @@ import com.steven.commons.enums.EstadoRegistro;
 import com.steven.commons.exceptions.EntidadRelacionadaException;
 import com.steven.commons.exceptions.RecursoNoEncontradoException;
 import com.steven.commons.clients.PacienteClient;
+import com.steven.commons.utils.StringCustomUtils;
+import com.steven.commons.utils.ValoresNumericosUtils;
 import com.steven.msv.citas.dto.CitaRequest;
 import com.steven.msv.citas.dto.CitaResponse;
 import com.steven.msv.citas.entity.Cita;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -36,6 +39,13 @@ public class CitaServiceImpl implements CitaService{
     private final MedicoClient medicoClient;
 
     private final PacienteClient pacienteClient;
+
+    private static final EnumSet<EstadoCita> ESTADOS_CITA_ACTIVA =
+            EnumSet.of(EstadoCita.PENDIENTE,EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO);
+
+    private static final EnumSet<EstadoCita> ESTADOS_CITA_BLOQUEANTE =
+            EnumSet.of(EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO);
+
 
 
     @Override
@@ -215,7 +225,7 @@ public class CitaServiceImpl implements CitaService{
 
         if (citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaIn(idPaciente
                 ,EstadoRegistro.ACTIVO,
-                EnumSet.of(EstadoCita.PENDIENTE,EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO)))
+                ESTADOS_CITA_ACTIVA))
             throw  new IllegalStateException("EL paciente no se pude registrar por que cuenta con una cita es estado pendiente , confirmada o en curso");
 
     }
@@ -225,7 +235,7 @@ public class CitaServiceImpl implements CitaService{
 
         if (citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaInAndIdNot(idPaciente
                 ,EstadoRegistro.ACTIVO,
-                EnumSet.of(EstadoCita.PENDIENTE,EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO),
+                ESTADOS_CITA_ACTIVA,
                 idCita))
             throw  new IllegalStateException("El paciente nuevo ya cuenta con una cita en estado pendiente, confirmada o en curso");
 
@@ -239,14 +249,12 @@ public class CitaServiceImpl implements CitaService{
 
         boolean cambioPaciente = !request.idPaciente().equals(idPacienteAnterior);
 
-        if (cambioMedico)
-            validarMedicoActivoDisponible(medico);
-
         if (cambioPaciente)
             validarPacienteSinOtrasCitasActivas(request.idPaciente(),cita.getId());
 
         if (cambioMedico)
         {
+            validarMedicoActivoDisponible(medico);
 
             actualizarDisponibilidadMedico(idMedicoAnterior,DisponibilidadMedico.DISPONIBLE.getCodigo());
 
@@ -263,11 +271,10 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Buscando en citas si un paciente tiene citas en estado confirmada o en curso");
 
-        if (citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaIn(
-                idPaciente,EstadoRegistro.ACTIVO,EnumSet.of(EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO)))
-          throw  new EntidadRelacionadaException("El paciente no puede actualizarse o eliminarse porque tiene citas confirmadas o en curso");
-
-
+        validarCitasBloqueantes(
+                citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaIn(
+                        idPaciente,EstadoRegistro.ACTIVO,ESTADOS_CITA_BLOQUEANTE),
+                "paciente");
 
     }
 
@@ -278,16 +285,18 @@ public class CitaServiceImpl implements CitaService{
 
         log.info("Buscando en citas si un medico tiene citas en estado confirmada o en curso");
 
-        if (citaRepository.existsByIdMedicoAndEstadoRegistroAndEstadoCitaIn(
-                idMedico,EstadoRegistro.ACTIVO,EnumSet.of(EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO)))
-            throw  new EntidadRelacionadaException("El medico no puede actualizarse o eliminarse porque tiene citas confirmadas o en curso");
-
-
+        validarCitasBloqueantes(
+                citaRepository.existsByIdMedicoAndEstadoRegistroAndEstadoCitaIn(
+                        idMedico,EstadoRegistro.ACTIVO,ESTADOS_CITA_BLOQUEANTE),
+                "medico");
 
     }
 
+    private void validarCitasBloqueantes(boolean existeCitaBloqueante,String sujeto)
+    {
 
+        if (existeCitaBloqueante)
+            throw  new EntidadRelacionadaException("El "+sujeto+" no puede actualizarse o eliminarse porque tiene citas confirmadas o en curso");
 
-
-
+    }
 }
