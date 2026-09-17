@@ -10,4 +10,6 @@ public interface CitaService extends CrudService<CitaRequest, CitaResponse> {
 
     void validarCitasBloqueantesPaciente (Long idPaciente);
 
+    void validarCitasBloqueantesMedico (Long idMedico);
+
 }

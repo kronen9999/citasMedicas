@@ -55,5 +55,20 @@ public class CitaController extends CrudController<CitaRequest, CitaResponse, Ci
       return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Verificar si un medico tiene citas confirmadas o en curso",
+            description = "El metodo recibe el id del medico, y verifica si en la tabla de citas tiene citas confirmadas o en curso "
+    )
+    @GetMapping("/medicos/{idMedico}/validar-existen-confirmadas-en-curso")
+    public ResponseEntity <Void> validarExistenMedicosConfirmadasOCurso
+            (
+                    @PathVariable @Positive(message = "El id del medico debe de ser positivo") Long idMedico
+            )
+    {
+        service.validarCitasBloqueantesMedico(idMedico);
+
+        return ResponseEntity.noContent().build();
+    }
+
 
 }

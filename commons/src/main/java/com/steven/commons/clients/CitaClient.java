@@ -9,4 +9,7 @@ public interface CitaClient {
 
     @GetMapping("/pacientes/{idPaciente}/validar-existen-confirmadas-en-curso")
     Void validarExistenPacientesConfirmadasOCurso (@PathVariable  Long idPaciente);
+
+    @GetMapping("/medicos/{idMedico}/validar-existen-confirmadas-en-curso")
+    Void validarExistenMedicosConfirmadasOCurso (@PathVariable  Long idMedico);
 }

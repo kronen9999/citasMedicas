@@ -220,6 +220,21 @@ public class CitaServiceImpl implements CitaService{
 
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public void validarCitasBloqueantesMedico(Long idMedico)
+    {
+
+        log.info("Buscando en citas si un medico tiene citas en estado confirmada o en curso");
+
+        if (citaRepository.existsByIdMedicoAndEstadoRegistroAndEstadoCitaIn(
+                idMedico,EstadoRegistro.ACTIVO,EnumSet.of(EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO)))
+            throw  new EntidadRelacionadaException("El medico no puede actualizarse o eliminarse porque tiene citas confirmadas o en curso");
+
+
+
+    }
+
 
 
 
