@@ -70,7 +70,7 @@ public record MedicoRequest(
         )
         @NotBlank(message = "La cedula profesional es requerido")
         @Size (min=12,max = 12,message = "La cedula profesional debe de tener exactamente 12 caracteres")
-        String cedulaProfessional,
+        String cedulaProfesional,
 
         @Schema(
                 description = "Identificador de la especialidad a la que pertenece el médico. Debe ser un número positivo",

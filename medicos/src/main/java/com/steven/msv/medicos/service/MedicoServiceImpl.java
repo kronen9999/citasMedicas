@@ -130,8 +130,8 @@ public class MedicoServiceImpl implements MedicoService {
         log.info("Valiando cedula profesional unica");
 
         if (medicoRepository.existsByCedulaProfesionalIgnoreCaseAndEstadoRegistro(
-                request.cedulaProfessional(),EstadoRegistro.ACTIVO
-        ))throw  new IllegalArgumentException("Ya existe un medico activo registrado  con la cedula profesional: "+request.cedulaProfessional());
+                request.cedulaProfesional(),EstadoRegistro.ACTIVO
+        ))throw  new IllegalArgumentException("Ya existe un medico activo registrado  con la cedula profesional: "+request.cedulaProfesional());
 
     }
 
@@ -153,8 +153,8 @@ public class MedicoServiceImpl implements MedicoService {
         log.info("Valiando cedula profesional unica");
 
         if (medicoRepository.existsByCedulaProfesionalIgnoreCaseAndEstadoRegistroAndIdNot(
-                request.cedulaProfessional(),EstadoRegistro.ACTIVO,id
-        ))throw  new IllegalArgumentException("Ya existe un medico activo registrado  con la cedula profesional: "+request.cedulaProfessional());
+                request.cedulaProfesional(),EstadoRegistro.ACTIVO,id
+        ))throw  new IllegalArgumentException("Ya existe un medico activo registrado  con la cedula profesional: "+request.cedulaProfesional());
 
     }
 
@@ -178,7 +178,7 @@ public class MedicoServiceImpl implements MedicoService {
                 request.edad(),
                 request.email(),
                 request.telefono(),
-                request.cedulaProfessional(),
+                request.cedulaProfesional(),
                 EspecialidadMedico.obtenerEspecialidadPorCodigo(request.idEspecialidad())
         );
 
