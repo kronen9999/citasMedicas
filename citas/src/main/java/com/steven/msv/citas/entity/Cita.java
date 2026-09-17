@@ -61,7 +61,7 @@ public class Cita {
     private  void validarNoEliminada()
     {
        if (this.estadoRegistro==EstadoRegistro.ELIMINADO)
-           throw  new IllegalArgumentException("La cita ya esta eliminada");
+           throw  new IllegalStateException("La cita ya esta eliminada");
 
     }
 
@@ -102,6 +102,17 @@ public class Cita {
 
     }
 
+    private void validarActualizacionPorPut()
+    {
+
+        validarNoEliminada();
+
+        if (estadoCita!=EstadoCita.PENDIENTE&&estadoCita!=EstadoCita.CONFIRMADA)
+            throw  new IllegalStateException(
+                    "La cita con estado "+ estadoCita + " solo puede actualizarse por PUT si esta PENDIENTE o CONFIRMADA");
+
+    }
+
 
 
 
@@ -111,6 +122,8 @@ public class Cita {
             Long idPaciente,Long idMedico,
             LocalDateTime fechaCita,String sintomas)
     {
+
+         validarActualizacionPorPut();
 
          validarDatos(idPaciente,idMedico,fechaCita,sintomas);
 

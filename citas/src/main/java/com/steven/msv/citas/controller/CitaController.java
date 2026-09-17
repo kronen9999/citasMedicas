@@ -5,11 +5,11 @@ import com.steven.msv.citas.dto.CitaRequest;
 import com.steven.msv.citas.dto.CitaResponse;
 import com.steven.msv.citas.service.CitaService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,5 +37,37 @@ public class CitaController extends CrudController<CitaRequest, CitaResponse, Ci
 
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(
+            summary = "Verificar si un paciente tiene citas confirmadas o en curso",
+            description = "El metodo recibe el id del paciente, y verifica si en la tabla de citas tiene citas confirmadas o en curso "
+    )
+
+    @GetMapping("/pacientes/{idPaciente}/validar-existen-confirmadas-en-curso")
+    public ResponseEntity <Void> validarExistenPacientesConfirmadasOCurso
+            (
+               @PathVariable @Positive(message = "El id del paciente debe de ser positivo") Long idPaciente
+            )
+    {
+      service.validarCitasBloqueantesPaciente(idPaciente);
+
+      return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Verificar si un medico tiene citas confirmadas o en curso",
+            description = "El metodo recibe el id del medico, y verifica si en la tabla de citas tiene citas confirmadas o en curso "
+    )
+    @GetMapping("/medicos/{idMedico}/validar-existen-confirmadas-en-curso")
+    public ResponseEntity <Void> validarExistenMedicosConfirmadasOCurso
+            (
+                    @PathVariable @Positive(message = "El id del medico debe de ser positivo") Long idMedico
+            )
+    {
+        service.validarCitasBloqueantesMedico(idMedico);
+
+        return ResponseEntity.noContent().build();
+    }
+
 
 }

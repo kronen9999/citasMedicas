@@ -22,7 +22,7 @@ public class MedicoMapper implements CommonMapper<MedicoRequest, MedicoResponse,
                 .edad(request.edad())
                 .email(request.email().trim().toLowerCase())
                 .telefono(request.telefono().trim())
-                .cedulaProfesional(request.cedulaProfessional().trim())
+                .cedulaProfesional(request.cedulaProfesional().trim())
                 .disponibilidad(DisponibilidadMedico.DISPONIBLE)
                 .estadoRegistro(EstadoRegistro.ACTIVO).
                 build();

@@ -17,10 +17,10 @@ public record CitaResponse
                 Long id,
 
                 @Schema(description = "Informracion del paciente asociado a la cita")
-                DatosPaciente datosPaciente,
+                DatosPaciente paciente,
 
                 @Schema(description = "Informacion del medico que atendera la cita")
-                DatosMedico datosMedico,
+                DatosMedico medico,
 
                 @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd/MM/yyyy HH:mm")
                 LocalDateTime fechaCita,

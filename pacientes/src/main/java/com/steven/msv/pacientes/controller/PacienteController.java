@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-@RequestMapping("api/pacientes")
 public class PacienteController extends CrudController<PacienteRequest, PacienteRespose, PacienteService> {
 
     public PacienteController(PacienteService service) {

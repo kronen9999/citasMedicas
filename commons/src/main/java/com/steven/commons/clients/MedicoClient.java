@@ -15,7 +15,7 @@ public interface MedicoClient {
     @GetMapping("/id-medico/{id}")
     MedicoResponse obtenerMedicoSinEstadoPorId (@PathVariable Long id);
 
-    @PutMapping("/{idMedico}/disponibilidad/{idDisponibilidad}")
+    @PutMapping("/{idMedico}/disponibilidad-interna/{idDisponibilidad}")
     MedicoResponse actualizarDisponibilidadMedico (@PathVariable Long idMedico,@PathVariable Long idDisponibilidad);
 
 
