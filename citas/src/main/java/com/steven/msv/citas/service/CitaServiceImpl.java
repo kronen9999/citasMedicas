@@ -66,7 +66,7 @@ public class CitaServiceImpl implements CitaService{
     @Transactional(readOnly = true)
     @Override
     public CitaResponse obtenerPorId(Long id) {
-//return citaMapper.entidadAResponse(obtenerCitaOException(id));
+
 
         Cita cita = obtenerCitaOException(id);
 
@@ -99,15 +99,30 @@ public class CitaServiceImpl implements CitaService{
 
     @Override
     public CitaResponse actualizar(CitaRequest request, long id) {
+
         Cita cita = obtenerCitaOException(id);
 
-        MedicoResponse medico = obtenerMedicoActivo(request.idMedico());
+        if (cita.getEstadoCita()!=EstadoCita.PENDIENTE && cita.getEstadoCita()!=EstadoCita.CONFIRMADA)
+
+            throw  new IllegalStateException("La cita no se puede actualizar por que no se encuentra como pendiente o confirmada");
+
+        Long idMedicoAnterior = cita.getIdMedico();
+
+        Long idPacienteAnterior = cita.getIdPaciente();
 
         log.info("Actualizando cita con id {}",id);
 
-        return citaMapper.entidadAResponse(
-                cita,null,medico
-        );
+        cita.actualizar(request.idPaciente(),request.idMedico(),request.fechaCita(),request.sintomas());
+
+        MedicoResponse medico = obtenerMedicoActivo(request.idMedico());
+
+        PacienteRespose paciente = pacienteClient.obtenerPacienteActivo(request.idPaciente());
+
+        procesarCambiosDeAsignacion(request,cita,medico,idMedicoAnterior,idPacienteAnterior);
+
+        log.info("Cita con id {} actualizada correctamente",id);
+
+        return citaMapper.entidadAResponse(cita,paciente,medico);
     }
 
     @Override
@@ -122,7 +137,7 @@ public class CitaServiceImpl implements CitaService{
         if (cita.getEstadoCita()==EstadoCita.PENDIENTE)
             actualizarDisponibilidadMedico(cita.getIdMedico(),DisponibilidadMedico.DISPONIBLE.getCodigo());
 
-        log.info("Cita con id {} ja sido marcada como eliminada ");
+        log.info("Cita con id {} ja sido marcada como eliminada ",id);
 
     }
 
@@ -202,6 +217,42 @@ public class CitaServiceImpl implements CitaService{
                 ,EstadoRegistro.ACTIVO,
                 EnumSet.of(EstadoCita.PENDIENTE,EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO)))
             throw  new IllegalStateException("EL paciente no se pude registrar por que cuenta con una cita es estado pendiente , confirmada o en curso");
+
+    }
+
+    private void validarPacienteSinOtrasCitasActivas(Long idPaciente,Long idCita)
+    {
+
+        if (citaRepository.existsByIdPacienteAndEstadoRegistroAndEstadoCitaInAndIdNot(idPaciente
+                ,EstadoRegistro.ACTIVO,
+                EnumSet.of(EstadoCita.PENDIENTE,EstadoCita.CONFIRMADA,EstadoCita.EN_CURSO),
+                idCita))
+            throw  new IllegalStateException("El paciente nuevo ya cuenta con una cita en estado pendiente, confirmada o en curso");
+
+    }
+
+    private void procesarCambiosDeAsignacion(CitaRequest request,Cita cita,MedicoResponse medico,
+                                             Long idMedicoAnterior,Long idPacienteAnterior)
+    {
+
+        boolean cambioMedico = !request.idMedico().equals(idMedicoAnterior);
+
+        boolean cambioPaciente = !request.idPaciente().equals(idPacienteAnterior);
+
+        if (cambioMedico)
+            validarMedicoActivoDisponible(medico);
+
+        if (cambioPaciente)
+            validarPacienteSinOtrasCitasActivas(request.idPaciente(),cita.getId());
+
+        if (cambioMedico)
+        {
+
+            actualizarDisponibilidadMedico(idMedicoAnterior,DisponibilidadMedico.DISPONIBLE.getCodigo());
+
+            cambiarDisponibilidadMedicoSegunEstadoCita(request.idMedico(),cita.getEstadoCita());
+
+        }
 
     }
 
